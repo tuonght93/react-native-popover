@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { PropTypes } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Dimensions,
@@ -8,9 +8,11 @@ import {
   Text,
   TouchableWithoutFeedback,
   View,
-  Easing
+  Easing,
+  Platform
 } from 'react-native';
-
+const PropTypes = require('prop-types');
+const createReactClass = require('create-react-class');
 var noop = () => {};
 
 var {height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get('window');
@@ -33,7 +35,7 @@ function Rect(x, y, width, height) {
   this.height = height;
 }
 
-var Popover = React.createClass({
+var Popover = createReactClass({
   propTypes: {
     isVisible: PropTypes.bool,
     onClose: PropTypes.func,
@@ -90,7 +92,7 @@ var Popover = React.createClass({
       case 'bottom':
         return this.computeBottomGeometry(options);
       case 'left':
-        return this.computeLeftGeometry(options);
+        return this.computeBottomGeometry(options);
       case 'right':
         return this.computeRightGeometry(options);
       default:
@@ -98,6 +100,7 @@ var Popover = React.createClass({
     }
   },
   computeTopGeometry({displayArea, fromRect, contentSize, arrowSize}) {
+
     var popoverOrigin = new Point(
       Math.min(displayArea.x + displayArea.width - contentSize.width,
         Math.max(displayArea.x, fromRect.x + (fromRect.width - contentSize.width) / 2)),
@@ -203,7 +206,7 @@ var Popover = React.createClass({
 
     return {
       left: anchorPoint.x - popoverOrigin.x - width / 2,
-      top: anchorPoint.y - popoverOrigin.y - height / 2,
+      top: anchorPoint.y - popoverOrigin.y - height / 2 + 4,
       width: width,
       height: height,
       borderTopWidth: height / 2,
@@ -218,7 +221,7 @@ var Popover = React.createClass({
       popoverOrigin.y + contentSize.height / 2);
     return new Point(anchorPoint.x - popoverCenter.x, anchorPoint.y - popoverCenter.y);
   },
-  componentWillReceiveProps(nextProps:any) {
+  componentWillReceiveProps(nextProps) {
     var willBeVisible = nextProps.isVisible;
     var {
       isVisible,
@@ -381,7 +384,7 @@ var styles = StyleSheet.create({
     left: 0,
     right: 0,
     position: 'absolute',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(0,0,0,0.1)',
   },
   popover: {
     backgroundColor: 'transparent',
@@ -389,12 +392,13 @@ var styles = StyleSheet.create({
     shadowColor: 'black',
     shadowOffset: {width: 0, height: 2},
     shadowRadius: 2,
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.1,
   },
   content: {
     borderRadius: 3,
     padding: 6,
     backgroundColor: '#fff',
+    marginTop: Platform.OS === 'ios' ? 0 : 3
   },
   arrow: {
     position: 'absolute',
